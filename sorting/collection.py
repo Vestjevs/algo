@@ -377,11 +377,11 @@ class YoungTableauMin:
         if self.__col == 0 and self.__row != 0:
             self.__tableau[0][0], self.__tableau[self.__row - 1][-1] = \
                 self.__tableau[self.__row - 1][-1], self.__tableau[0][0]
-            self.__tableau[self.__row - 1][-1] = -np.inf
+            self.__tableau[self.__row - 1][-1] = np.inf
         else:
             self.__tableau[0][0], self.__tableau[self.__row][self.__col - 1] = \
                 self.__tableau[self.__row][self.__col - 1], self.__tableau[0][0]
-            self.__tableau[self.__row][self.__col - 1] = -np.inf
+            self.__tableau[self.__row][self.__col - 1] = np.inf
 
         self.__size -= 1
         self.__descent_elem(0, 0)
@@ -394,21 +394,22 @@ class YoungTableauMin:
 
     def __lift_elem(self, i, j):
         self.__check(i, j)
-        while (i > 0 and j > 0) or (self.__tableau[i][j] < self.__tableau[i - 1][j] or
-                                    self.__tableau[i][j] < self.__tableau[i][j - 1]):
-            if np.maximum(self.__tableau[i][j - 1], self.__tableau[i - 1][j]) == self.__tableau[i - 1][j] \
-                    and self.__tableau[i][j] < self.__tableau[i - 1][j]:
+        while (i > 0 and j > 0) and (self.__tableau[i][j] < self.__tableau[i - 1][j] or
+                                     self.__tableau[i][j] < self.__tableau[i][j - 1]):
+            if self.__tableau[i][j] < self.__tableau[i - 1][j] == np.maximum(self.__tableau[i][j - 1],
+                                                                             self.__tableau[i - 1][j]):
                 self.__tableau[i][j], self.__tableau[i - 1][j] = self.__tableau[i - 1][j], self.__tableau[i][j]
                 i -= 1
-            elif self.__tableau[i][j] < self.__tableau[i][j - 1]:
+            elif self.__tableau[i][j] < self.__tableau[i][j - 1] == np.maximum(self.__tableau[i][j - 1],
+                                                                               self.__tableau[i - 1][j]):
                 self.__tableau[i][j], self.__tableau[i][j - 1] = self.__tableau[i][j - 1], self.__tableau[i][j]
                 j -= 1
-            elif self.__tableau[i][j] < self.__tableau[i - 1][j]:
-                self.__tableau[i][j], self.__tableau[i - 1][j] = self.__tableau[i - 1][j], self.__tableau[i][j]
-                i -= 1
-            elif self.__tableau[i][j] < self.__tableau[i][j - 1]:
-                self.__tableau[i][j], self.__tableau[i][j - 1] = self.__tableau[i][j - 1], self.__tableau[i][j]
-                j -= 1
+        while i > 0 and self.__tableau[i][j] < self.__tableau[i - 1][j]:
+            self.__tableau[i][j], self.__tableau[i - 1][j] = self.__tableau[i - 1][j], self.__tableau[i][j]
+            i -= 1
+        while j > 0 and self.__tableau[i][j] < self.__tableau[i][j - 1]:
+            self.__tableau[i][j], self.__tableau[i][j - 1] = self.__tableau[i][j - 1], self.__tableau[i][j]
+            j -= 1
 
     def __descent_elem(self, i, j):
         self.__check(i, j)
@@ -434,17 +435,15 @@ class YoungTableauMin:
             raise IndexError
 
 
-tableau = YoungTableauMax(5, 5)
+tableau = YoungTableauMin(5, 5)
 for i in range(25):
     tableau.insert(random.randint(1, 10 ** 3))
 arr = []
 tableau.show()
 print()
 for i in range(tableau.size()):
-    arr.append(tableau.extract_maximum())
+    arr.append(tableau.extract_minimum())
     tableau.show()
     print()
 print(arr)
-# for i in range(tableau.size()):
-#     arr.append(tableau.extract_maximum())
-# print(arr)
+
