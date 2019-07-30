@@ -43,6 +43,7 @@ def __min_heapify(array, i, heap_size):
         __min_heapify(array, largest, heap_size)
 
 
+# heap sorting
 def build_max_heap_1(array):
     for i in range((len(array) - 1) // 2, -1, -1):
         __max_heapify(array, i, len(array))
@@ -82,6 +83,7 @@ def heap_sort(array):
         __max_heapify(array, 0, heap_size)  # change to __max_heapify for decreasing sort
 
 
+# data structure
 class PriorityQueueMax:
     def __init__(self):
         self.__queue = []
@@ -161,6 +163,7 @@ class PriorityQueueMax:
         print(self.__queue)
 
 
+# data structure
 class PriorityQueueMin:
     def __init__(self):
         self.__queue = []
@@ -248,6 +251,7 @@ class DaryHeap:
         return index // self.__d
 
 
+# data structure
 class YoungTableauMax:
     def __init__(self, m, n):
         self.__tableau = [[-np.inf for _ in range(n)] for _ in range(m)]
@@ -341,6 +345,7 @@ class YoungTableauMax:
             raise IndexError
 
 
+# data structure
 class YoungTableauMin:
     def __init__(self, m, n):
         self.__tableau = [[np.inf for _ in range(n)] for _ in range(m)]
@@ -435,15 +440,78 @@ class YoungTableauMin:
             raise IndexError
 
 
-tableau = YoungTableauMin(5, 5)
-for i in range(25):
-    tableau.insert(random.randint(1, 10 ** 3))
-arr = []
-tableau.show()
-print()
-for i in range(tableau.size()):
-    arr.append(tableau.extract_minimum())
-    tableau.show()
-    print()
-print(arr)
+# quicksort
 
+
+def quick_sort(array, p, r):
+    """
+    :average rating: O(nLgn)
+    :param array: considered array
+    :param p: left border
+    :param r: right border
+    """
+    if p < r:
+        q = __partition(array, p, r)
+        quick_sort(array, p, q - 1)
+        quick_sort(array, q + 1, r)
+
+
+def __partition(array, p, r):
+    """
+
+    :param array: considered array, where occur changes the order of elements
+    :param p: left border
+    :param r: right border
+    :return: middle index
+    """
+    pivot = array[r]
+    i = p - 1
+    for j in range(p, r):
+        if array[j] <= pivot:
+            i += 1
+            array[i], array[j] = array[j], array[i]
+    array[i + 1], array[r] = array[r], array[i + 1]
+    return i + 1
+
+
+# quick sort randomized version
+def __randomized_partition(array, p, r):
+    i = random.randint(p, r)
+    array[i], array[r] = array[r], array[i]
+    return __partition(array, p, r)
+
+
+def randomized_quick_sort(array, p, r):
+    if p < r:
+        q = __randomized_partition(array, p, r)
+        randomized_quick_sort(array, p, q - 1)
+        randomized_quick_sort(array, q + 1, r)
+
+
+# quick sort hoare partition, exist bug (unknown)
+def __hoare_partition(array, p, r):
+    pivot = array[p]
+    i = p
+    j = r
+    while i < r and j > p:
+        while array[j] > pivot:
+            j -= 1
+        while array[i] < pivot:
+            i += 1
+        if i < j and i < r:
+            array[i], array[j] = array[j], array[i]
+            print('+')
+        else:
+            return j
+
+
+def quick_sort_hoare(array, p, r):
+    if p < r:
+        q = __hoare_partition(array, p, r)
+        quick_sort_hoare(array, p, q - 1)
+        quick_sort_hoare(array, q + 1, r)
+
+
+array = [random.randint(1, 10 ** 3) for _ in range(15)]
+quick_sort_hoare(array, 0, len(array) - 1)
+print(array)
