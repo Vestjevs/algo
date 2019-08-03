@@ -43,6 +43,16 @@ def __min_heapify(array, i, heap_size):
         __min_heapify(array, largest, heap_size)
 
 
+def insertion_sort(array):
+    for i in range(1, len(array)):
+        key = array[i]
+        j = i - 1
+        while j >= 0 and array[j] > key:
+            array[j + 1] = array[j]
+            j -= 1
+        array[j + 1] = key
+
+
 # heap sorting
 def build_max_heap_1(array):
     for i in range((len(array) - 1) // 2, -1, -1):
@@ -512,6 +522,91 @@ def quick_sort_hoare(array, p, r):
         quick_sort_hoare(array, q + 1, r)
 
 
-array = [random.randint(1, 10 ** 3) for _ in range(15)]
-quick_sort_hoare(array, 0, len(array) - 1)
-print(array)
+# tail recursion
+def quick_sort_tail_recursion(array, p, r):
+    while p < r:
+        q = __partition(array, p, r)
+        quick_sort_tail_recursion(array, p, q - 1)
+        p = q + 1
+
+
+# stooge sort O(n^2,7)
+def stooge_sort(array, i, j):
+    if array[i] > array[j]:
+        array[i], array[j] = array[j], array[i]
+    if i + 1 >= j:
+        return
+    k = (j - i + 1) // 3
+    stooge_sort(array, i, j - k)
+    stooge_sort(array, i + k, j)
+    stooge_sort(array, i, j - k)
+
+
+# counting sort O(n + k)
+def counting_sort(array, k):
+    c = [0 for _ in range(k)]
+
+    for j in range(len(array)):
+        c[array[j]] += 1
+
+    b = [-1 for _ in range(len(array))]
+
+    for i in range(1, k):
+        c[i] += c[i - 1]
+
+    for j in range(len(array)):
+        b[c[array[j]] - 1] = array[j]
+        c[array[j]] -= 1
+
+    return b
+
+
+# radix sort O(d(n + k))
+def __counting_sort_rd(array, k, index):
+    c = [0 for _ in range(k)]
+
+    for j in range(len(array)):
+        c[get_digit(array[j], index)] += 1
+
+    b = [-1 for _ in range(len(array))]
+
+    for i in range(1, k):
+        c[i] += c[i - 1]
+
+    for j in range(len(array) - 1, -1, -1):
+        b[c[get_digit(array[j], index)] - 1] = array[j]
+        c[get_digit(array[j], index)] -= 1
+
+    return b
+
+
+def radix_sort(array, d):
+    for i in range(d):
+        array = __counting_sort_rd(array, 10, i)
+    return array
+
+
+def get_digit(number, k):
+    return number // 10 ** k % 10
+
+
+# bucket sort O(n)
+def bucket_sort(array):
+    aux = [[] for _ in range(len(array))]
+    for i in range(len(array)):
+        aux[int(np.floor(len(array) * array[i]))].append(array[i])
+
+    result = []
+
+    for j in range(len(array)):
+        insertion_sort(aux[j])
+        result += aux[j]
+
+    array = result
+    return array
+
+
+arr = [random.random() for _ in range(100)]
+print(arr)
+arr = bucket_sort(arr)
+print(arr)
