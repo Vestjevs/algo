@@ -606,7 +606,48 @@ def bucket_sort(array):
     return array
 
 
-arr = [random.random() for _ in range(100)]
-print(arr)
-arr = bucket_sort(arr)
-print(arr)
+# find minimum and maximum O(n) or 3 floor(n / 2) comparisons
+def find_min_and_max(array):
+    if len(array) % 2 == 0:
+        if array[0] < array[1]:
+            minimum = array[0]
+            maximum = array[1]
+        else:
+            minimum = array[1]
+            maximum = array[0]
+        for i in range(2, len(array), 2):
+            if array[i] < array[i + 1]:
+                if array[i] < minimum:
+                    minimum = array[i]
+                if array[i + 1] > maximum:
+                    maximum = array[i + 1]
+            else:
+                if array[i + 1] < minimum:
+                    minimum = array[i + 1]
+                if array[i] > maximum:
+                    maximum = array[i]
+    else:
+        minimum = maximum = array[0]
+        for i in range(1, len(array), 2):
+            if array[i] < array[i + 1]:
+                if array[i] < minimum:
+                    minimum = array[i]
+                if array[i + 1] > maximum:
+                    maximum = array[i + 1]
+            else:
+                if array[i + 1] < minimum:
+                    minimum = array[i + 1]
+                if array[i] > maximum:
+                    maximum = array[i]
+
+    return minimum, maximum
+
+
+for i in range(1000):
+    arr = [random.randint(1, 100) for _ in range(999)]
+    insertion_sort(arr)
+    minimum1, maximum1 = find_min_and_max(arr)
+    if minimum1 != arr[0] and maximum1 != arr[-1]:
+        raise Exception('Awfully')
+    else:
+        print(i)
