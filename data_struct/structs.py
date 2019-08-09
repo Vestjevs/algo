@@ -365,14 +365,16 @@ class Stack:
         if self.__top == 0:
             raise Exception('EmptyflowError')
         else:
+            removed = self.__container[self.__top - 1]
             self.__container.pop(self.__top - 1)
             self.__top -= 1
+        return removed
 
     def pick(self):
         if self.__top == 0:
             raise Exception('EmptyflowError')
         else:
-            return self.__container[self.__top]
+            return self.__container[self.__top - 1]
 
     def __len__(self):
         return len(self.__container)
@@ -391,18 +393,20 @@ class Queue:
     def is_empty(self):
         return self.__tail == 0
 
-    def enqueue(self, elem):
+    def enqueue(self, element):
         if self.__tail == self.__capacity:
             raise OverflowError
         else:
-            self.__container.append(elem)
+            self.__container.append(element)
             self.__tail += 1
 
     def dequeue(self):
         if self.__tail == 0:
             raise Exception('EmptyflowError')
         else:
+            removed = self.__container[0]
             self.__container.pop(0)
+        return removed
 
     def __len__(self):
         return len(self.__container)
@@ -411,9 +415,47 @@ class Queue:
         return '\n'.join(str(elem) for elem in self.__container)
 
 
-queue = Queue(5)
-queue.enqueue(1)
-queue.enqueue(10)
-queue.enqueue(2)
-queue.dequeue()
-print(queue)
+class QueueOnTwoStacks:
+    def __init__(self, capacity):
+        self.__capacity = capacity
+        self.__stack = Stack(capacity)
+        self.__aux_stack = Stack(capacity)
+
+    def is_empty(self):
+        return self.__stack.is_empty()
+
+    def enqueue(self, element):
+        self.__stack.push(element)
+
+    def dequeue(self):
+        size = len(self.__stack)
+        for _ in range(size):
+            self.__aux_stack.push(self.__stack.pop())
+        removed = self.__aux_stack.pop()
+
+        for _ in range(size - 1):
+            self.__stack.push(self.__aux_stack.pop())
+        return removed
+
+
+class StackOnTwoQueues:
+    def __init__(self, capacity):
+        self.__capacity = capacity
+        self.__queue = Queue(capacity)
+        self.__aux_queue = Queue(capacity)
+
+    def is_empty(self):
+        return self.__queue.is_empty()
+
+    def push(self, element):
+        self.__queue.enqueue(element)
+
+    def pop(self):
+        size = len(self.__queue)
+        for _ in range(size):
+            self.__aux_queue.enqueue(self.__queue.dequeue())
+        removed = self.__aux_queue.dequeue()
+
+        for _ in range(size - 1):
+            self.__queue.enqueue(self.__aux_queue.dequeue())
+        return removed
