@@ -459,3 +459,335 @@ class StackOnTwoQueues:
         for _ in range(size - 1):
             self.__queue.enqueue(self.__aux_queue.dequeue())
         return removed
+
+
+class Node:
+    def __init__(self, prev, key, next):
+        self.__key = key
+        self.__prev = prev
+        self.__next = next
+
+    def get_key(self):
+        return self.__key
+
+    def get_prev(self):
+        return self.__prev
+
+    def set_prev(self, prev):
+        self.__prev = prev
+
+    def get_next(self):
+        return self.__next
+
+    def set_next(self, next):
+        self.__next = next
+
+
+class LinkedList:
+    def __init__(self, capacity):
+        self.__capacity = capacity
+        self.__head = None
+        self.__tail = None
+        self.__size = 0
+
+    def is_empty(self):
+        return self.__size == 0
+
+    # add element to the end
+    def insert(self, key):
+        if self.__size == self.__capacity:
+            raise OverflowError
+        else:
+            if self.is_empty():
+                node = Node(None, key, None)
+                self.__head = node
+                self.__tail = node
+                self.__size += 1
+            else:
+                node = Node(self.__tail, key, None)
+                self.__tail.set_next(node)
+                self.__tail = node
+                self.__size += 1
+
+    # add element to head
+    def put(self, key):
+        if self.__size == self.__capacity:
+            raise OverflowError
+        else:
+            if self.is_empty():
+                node = Node(None, key, None)
+                self.__head = node
+                self.__tail = node
+                self.__size += 1
+            else:
+                node = Node(None, key, self.__head)
+                self.__head.set_prev(node)
+                self.__head = node
+                self.__size += 1
+
+    def __search(self, key):
+        if self.is_empty():
+            raise Exception('I\'m empty')
+        else:
+            current = self.__head
+            while current is not None:
+                if current.get_key() == key:
+                    return current
+                current = current.get_next()
+        return None
+
+    def is_contain(self, key):
+        return self.__search(key) is not None
+
+    def delete(self, key):
+        if self.is_empty():
+            raise Exception('Im empty')
+        else:
+            removed = self.__search(key)
+            if removed is not None and removed.get_next() is not None and removed.get_prev() is not None:
+                removed.get_prev().set_next(removed.get_next())
+                removed.get_next().set_prev(removed.get_prev())
+                self.__size -= 1
+            elif removed is not None and removed.get_next() is None:
+                removed.get_prev().set_next(None)
+                self.__tail = removed.get_prev()
+                self.__size -= 1
+            elif removed is not None and removed.get_prev() is None:
+                self.__head = removed.get_next()
+                self.__size -= 1
+            elif removed is not None and removed.get_prev() is None and removed.get_next() is None:
+                self.__head = None
+                self.__size -= 1
+
+    def show(self):
+        current = self.__head
+        sample = ''
+        while current is not None:
+            sample += str(current.get_key()) + '\n'
+            current = current.get_next()
+        return sample
+
+
+class TreeNode:
+    def __init__(self, key=None, left=None, right=None, ancestor=None):
+        self.__key = key
+        self.__left = left
+        self.__right = right
+        self.__ancestor = ancestor
+
+    @staticmethod
+    def to_sstring(node, prefix):
+        if node is None:
+            return ""
+        else:
+            indent = prefix + '\t'
+            return '{}Node -> {} \n{}{}'.format(indent, node.get_key(), TreeNode.to_sstring(node.get_left(), indent),
+                                                TreeNode.to_sstring(node.get_right(), indent))
+
+    def __str__(self):
+        return 'Node key -> {}'.format(self.__key)
+
+    def get_key(self):
+        return self.__key
+
+    def set_key(self, key):
+        self.__key = key
+
+    def get_right(self):
+        return self.__right
+
+    def get_left(self):
+        return self.__left
+
+    def set_left(self, node):
+        self.__left = node
+
+    def set_right(self, node):
+        self.__right = node
+
+    def set_ancestor(self, node):
+        self.__ancestor = node
+
+    def get_ancestor(self):
+        return self.__ancestor
+
+    def set_key(self, key):
+        self.__key = key
+
+
+class BST:
+    def __init__(self):
+        self.__root = None
+        self.__size = 0
+
+    def is_empty(self):
+        return self.__size == 0
+
+    def __len__(self):
+        return self.__size
+
+    def minimum(self):
+        return self.__minimum(self.__root)
+
+    def __minimum(self, node):
+        while node.get_left() is not None:
+            node = node.get_left()
+        return node
+
+    def maximum(self):
+        node = self.__root
+        while node.get_right() is not None:
+            node = node.get_right()
+        return node
+
+    def __maximum(self, node):
+        if node.get_right() is None:
+            return node
+        else:
+            return self.__maximum(node.get_right())
+
+    def rec_minimum(self):
+        return self.__recursive_minimum(self.__root)
+
+    def __recursive_minimum(self, node):
+        if node.get_left() is None:
+            return node
+        else:
+            return self.__recursive_minimum(node)
+
+    def __search(self, key):
+        node = self.__root
+        while node is not None and key != node.get_key():
+            if key < node.get_key():
+                node = node.get_left()
+            else:
+                node = node.get_right()
+        return node
+
+    def is_contain(self, key):
+        return self.__search(key) is not None
+
+    def successor(self, key):
+        node = self.__search(key)
+        if node.get_right() is not None:
+            return self.__minimum(node)
+
+        y = node.get_ancestor()
+        while y is not None and node == y.get_right():
+            node = y
+            y = y.get_ancestor()
+
+        return y
+
+    def insert(self, key):
+        y = None
+        x = self.__root
+        node = TreeNode(key)
+        while x is not None:
+            y = x
+            if node.get_key() < x.get_key():
+                x = x.get_left()
+            else:
+                x = x.get_right()
+        node.set_ancestor(y)
+        if y is None:
+            self.__root = node
+            self.__size += 1
+        else:
+            if node.get_key() < y.get_key():
+                y.set_left(node)
+                self.__size += 1
+            else:
+                y.set_right(node)
+                self.__size += 1
+
+    def rec_insert(self, key):
+        self.__root = self.__recursive_insert(self.__root, key)
+
+    def delete(self, key):
+        node = self.__search(key)
+        if node is None:
+            raise Exception('key does not contained here')
+        else:
+            if node.get_right() is None and node.set_left() is None:
+                node.set_ancestor(None)
+                self.__size -= 1
+            else:
+                # minimum from node.right
+
+                aux1 = self.__minimum(node.get_right())
+                # maximum from node.left
+
+                aux2 = self.__maximum(node.get_left())
+                if aux1 is not None:
+                    node.set_key(aux1.get_key())
+                    aux1.get_ancestor().set_left(aux1.get_right())
+                    self.__size -= 1
+                elif aux2 is not None:
+                    node.set_key(aux2.get_key())
+                    aux2.get_ancestor().set_right(aux2.get_left())
+                    self.__size -= 1
+
+    def to_sstring(self):
+        return TreeNode.to_sstring(self.__root, " ")
+
+    def __recursive_insert(self, node, key):
+        if node is None:
+            node = TreeNode(key)
+            self.__size += 1
+        else:
+            if key < node.get_key():
+                node.set_left(self.__recursive_insert(node.get_left(), key))
+            else:
+                node.set_right(self.__recursive_insert(node.get_right(), key))
+        return node
+
+    def inorder_walk(self):
+        self.__inorder_walk(self.__root)
+
+    def __inorder_walk(self, node):
+        if node is not None:
+            self.__inorder_walk(node.get_left())
+            print(node)
+            self.__inorder_walk(node.get_right())
+
+
+bst = BST()
+sample = ' '
+#
+# while len(bst) != 6:
+#     value = input('Insert value: ')
+#     sample += value + ' '
+#     bst.rec_insert(int(value))
+#     print(bst.to_sstring())
+#
+# print(len(bst))
+#
+# i = 0
+# while i != 6:
+#     i += 1
+#     choice = int(input('Insert your value: '))
+#     print(bst.is_contain(choice))
+#     print(sample)
+#
+#     arr = sample.split(' ')
+#     arr.remove(str(choice))
+#     sample = ' '.join(arr)
+#     bst.delete(choice)
+#     print(bst.to_sstring())
+bst.insert(50)
+print(bst.to_sstring())
+bst.insert(30)
+bst.insert(46)
+bst.insert(78)
+bst.insert(18)
+print(bst.to_sstring())
+bst.insert(105)
+bst.insert(115)
+bst.insert(155)
+bst.insert(55)
+bst.insert(65)
+print(bst.to_sstring())
+bst.delete(50)
+print(bst.to_sstring())
+bst.inorder_walk()
